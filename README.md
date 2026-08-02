@@ -17,7 +17,6 @@
 ### 1. Install Dependencies
 
 ```bash
-cd backend
 npm install
 ```
 
@@ -29,7 +28,7 @@ Create `.env` file in backend root:
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_password
-DB_NAME=mini_clinic_db
+DB_NAME=mini_clinic
 DB_PORT=3306
 
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
@@ -38,23 +37,31 @@ JWT_EXPIRES_IN=24h
 PORT=5000
 NODE_ENV=development
 
-FRONTEND_URL=http://localhost:3000
 ```
 
-### 3. Create MySQL Database
+### 3. Generate JWT_SECRET
+
+```bash
+Run node scripts/generateSecret.js
+Paste JWT_SECRET to .env
+```
+
+### 4. Create MySQL Database
 
 ```sql
-CREATE DATABASE mini_clinic_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE mini_clinic
 ```
 
-### 4. Run Application
+### 5. Run Application
 
 Development:
+
 ```bash
 npm run dev
 ```
 
 Production:
+
 ```bash
 npm start
 ```
@@ -64,11 +71,13 @@ The server will start on `http://localhost:5000`
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - Register new user (Admin only)
 - `POST /api/auth/login` - Login user
 - `GET /api/auth/profile` - Get current user profile
 
 ### Patients
+
 - `GET /api/patients` - Get all patients (with pagination & search)
 - `GET /api/patients/:id` - Get patient by ID
 - `POST /api/patients` - Create new patient (Admin, Registration Staff)
@@ -76,6 +85,7 @@ The server will start on `http://localhost:5000`
 - `DELETE /api/patients/:id` - Delete patient (Admin only)
 
 ### Doctors
+
 - `GET /api/doctors` - Get all doctors
 - `GET /api/doctors/:id` - Get doctor by ID
 - `POST /api/doctors` - Create new doctor (Admin only)
@@ -83,6 +93,7 @@ The server will start on `http://localhost:5000`
 - `DELETE /api/doctors/:id` - Delete doctor (Admin only)
 
 ### Clinics
+
 - `GET /api/clinics` - Get all clinics
 - `GET /api/clinics/:id` - Get clinic by ID
 - `POST /api/clinics` - Create new clinic (Admin only)
@@ -90,6 +101,7 @@ The server will start on `http://localhost:5000`
 - `DELETE /api/clinics/:id` - Delete clinic (Admin only)
 
 ### Registrations
+
 - `GET /api/registrations` - Get all registrations (with filters)
 - `GET /api/registrations/:id` - Get registration by ID
 - `POST /api/registrations` - Create new registration (Admin, Registration Staff)
@@ -97,12 +109,14 @@ The server will start on `http://localhost:5000`
 - `DELETE /api/registrations/:id` - Delete registration (Admin only)
 
 ### Queues
+
 - `GET /api/queues/today` - Get today's queues
 - `GET /api/queues/next` - Get next queue (Doctor, Registration Staff)
 - `GET /api/queues/history` - Get queue history
 - `PUT /api/queues/:id/status` - Update queue status (Doctor, Registration Staff)
 
 ### Examinations (SOAP)
+
 - `GET /api/examinations/registration/:registration_id` - Get examination by registration
 - `GET /api/examinations/patient/:patient_id/history` - Get patient examination history
 - `POST /api/examinations` - Create examination (Doctor only)
@@ -112,6 +126,7 @@ The server will start on `http://localhost:5000`
 - `PUT /api/examinations/:id/complete` - Complete examination (Doctor only)
 
 ### Dashboard
+
 - `GET /api/dashboard/stats` - Get dashboard statistics (Admin only)
 - `GET /api/dashboard/recent-registrations` - Get recent registrations (Admin only)
 - `GET /api/dashboard/patient-statistics` - Get patient statistics (Admin only)
@@ -119,6 +134,7 @@ The server will start on `http://localhost:5000`
 ## Response Format
 
 Success:
+
 ```json
 {
   "success": true,
@@ -128,6 +144,7 @@ Success:
 ```
 
 Error:
+
 ```json
 {
   "success": false,
@@ -138,6 +155,7 @@ Error:
 ## Authentication
 
 Include JWT token in Authorization header:
+
 ```
 Authorization: Bearer <your-jwt-token>
 ```
