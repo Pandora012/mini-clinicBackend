@@ -72,64 +72,62 @@ The server will start on `http://localhost:5000`
 
 ### Authentication
 
-- `POST /api/auth/register` - Register new user (Admin only)
 - `POST /api/auth/login` - Login user
-- `GET /api/auth/profile` - Get current user profile
 
 ### Patients
 
 - `GET /api/patients` - Get all patients (with pagination & search)
 - `GET /api/patients/:id` - Get patient by ID
-- `POST /api/patients` - Create new patient (Admin, Registration Staff)
-- `PUT /api/patients/:id` - Update patient (Admin, Registration Staff)
-- `DELETE /api/patients/:id` - Delete patient (Admin only)
+- `POST /api/patients` - Create new patient
+- `PUT /api/patients/:id` - Update patient
+- `DELETE /api/patients/:id` - Delete patient
 
 ### Doctors
 
 - `GET /api/doctors` - Get all doctors
 - `GET /api/doctors/:id` - Get doctor by ID
-- `POST /api/doctors` - Create new doctor (Admin only)
-- `PUT /api/doctors/:id` - Update doctor (Admin only)
-- `DELETE /api/doctors/:id` - Delete doctor (Admin only)
+- `POST /api/doctors` - Create new doctor
+- `PUT /api/doctors/:id` - Update doctor
+- `DELETE /api/doctors/:id` - Delete doctor
 
 ### Clinics
 
 - `GET /api/clinics` - Get all clinics
 - `GET /api/clinics/:id` - Get clinic by ID
-- `POST /api/clinics` - Create new clinic (Admin only)
-- `PUT /api/clinics/:id` - Update clinic (Admin only)
-- `DELETE /api/clinics/:id` - Delete clinic (Admin only)
+- `POST /api/clinics` - Create new clinic
+- `PUT /api/clinics/:id` - Update clinic
+- `DELETE /api/clinics/:id` - Delete clinic
 
 ### Registrations
 
-- `GET /api/registrations` - Get all registrations (with filters)
+- `GET /api/registrations` - Get all registrations
 - `GET /api/registrations/:id` - Get registration by ID
-- `POST /api/registrations` - Create new registration (Admin, Registration Staff)
-- `PUT /api/registrations/:id` - Update registration (Admin, Registration Staff, Doctor)
-- `DELETE /api/registrations/:id` - Delete registration (Admin only)
+- `POST /api/registrations` - Create new registration
+- `PUT /api/registrations/:id` - Update registration
+- `DELETE /api/registrations/:id` - Delete registration
 
 ### Queues
 
 - `GET /api/queues/today` - Get today's queues
-- `GET /api/queues/next` - Get next queue (Doctor, Registration Staff)
+- `GET /api/queues/next` - Get next queue
 - `GET /api/queues/history` - Get queue history
-- `PUT /api/queues/:id/status` - Update queue status (Doctor, Registration Staff)
+- `PUT /api/queues/:id/status` - Update queue status
 
 ### Examinations (SOAP)
 
 - `GET /api/examinations/registration/:registration_id` - Get examination by registration
 - `GET /api/examinations/patient/:patient_id/history` - Get patient examination history
-- `POST /api/examinations` - Create examination (Doctor only)
-- `PUT /api/examinations/:id` - Update examination (Doctor only)
-- `POST /api/examinations/medical-actions` - Add medical action (Doctor only)
-- `POST /api/examinations/prescriptions` - Add prescription (Doctor only)
-- `PUT /api/examinations/:id/complete` - Complete examination (Doctor only)
+- `POST /api/examinations` - Create examination
+- `PUT /api/examinations/:id` - Update examination
+- `POST /api/examinations/medical-actions` - Add medical action
+- `POST /api/examinations/prescriptions` - Add prescription
+- `PUT /api/examinations/:id/complete` - Complete examination
 
 ### Dashboard
 
-- `GET /api/dashboard/stats` - Get dashboard statistics (Admin only)
-- `GET /api/dashboard/recent-registrations` - Get recent registrations (Admin only)
-- `GET /api/dashboard/patient-statistics` - Get patient statistics (Admin only)
+- `GET /api/dashboard/stats` - Get dashboard statistics
+- `GET /api/dashboard/recent-registrations` - Get recent registrations
+- `GET /api/dashboard/patient-statistics` - Get patient statistics
 
 ## Response Format
 
@@ -160,12 +158,6 @@ Include JWT token in Authorization header:
 Authorization: Bearer <your-jwt-token>
 ```
 
-## Roles
-
-- **Administrator**: Full access to all features
-- **Dokter**: Examinations, queues update, patient history
-- **Petugas Pendaftaran**: Patient CRUD, registration, queue management
-
 ## Auto-Generation
 
 - **Medical Record Number**: Format `RM000001`, increments automatically
@@ -194,10 +186,6 @@ backend/
 ├── server.js        # Server entry point
 └── package.json     # Dependencies
 ```
-
-## Default Admin User
-
-Create first admin user via `/api/auth/register` with role 'Administrator'
 
 ## Testing
 

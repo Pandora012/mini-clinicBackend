@@ -1,4 +1,4 @@
-const { Examination, Registration, Patient, MedicalAction, Prescription } = require("../models");
+const { Examination, Registration, Patient, MedicalAction, Prescription, Doctor, Clinic } = require("../models");
 
 const getExaminationByRegistrationId = async (req, res) => {
   try {
