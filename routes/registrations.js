@@ -5,10 +5,10 @@ const { registrationValidation } = require("../validations/registrationValidatio
 const validate = require("../middleware/validation");
 const { getAllRegistrations, getRegistrationById, createRegistration, updateRegistration, deleteRegistration } = require("../controllers/registrationController");
 
-router.get("/", authMiddleware, getAllRegistrations);
+router.get("/", authMiddleware, require("../middleware/pagination"), getAllRegistrations);
 router.get("/:id", authMiddleware, getRegistrationById);
 router.post("/", authMiddleware, authorize("Administrator", "Petugas Pendaftaran"), registrationValidation, validate, createRegistration);
-router.put("/:id", authMiddleware, authorize("Administrator", "Petugas Pendaftaran", "Dokter"), registrationValidation, validate, updateRegistration);
+router.put("/:id", authMiddleware, authorize("Administrator", "Petugas Pendaftaran"), registrationValidation, validate, updateRegistration);
 router.delete("/:id", authMiddleware, authorize("Administrator"), deleteRegistration);
 
 module.exports = router;

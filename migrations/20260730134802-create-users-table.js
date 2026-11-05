@@ -2,6 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    if ((await queryInterface.showAllTables()).includes("users")) return;
     await queryInterface.createTable("users", {
       id: {
         type: Sequelize.INTEGER,
@@ -52,11 +53,7 @@ module.exports = {
     });
   },
 
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("users");
-
-    // Untuk MySQL sebenarnya tidak wajib.
-    // Untuk PostgreSQL biasanya perlu menghapus ENUM.
-    // await queryInterface.sequelize.query('DROP TYPE IF EXISTS enum_users_role');
+  async down() {
+    throw new Error('Baseline akun tidak dihapus otomatis. Pulihkan backup untuk membatalkan instalasi.');
   },
 };

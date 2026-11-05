@@ -1,38 +1,31 @@
-const { Patient } = require('../models');
+const sequelize = require('../config/sequelize');
+const NumberSequence = require('../models/NumberSequence');
+const { QueryTypes } = require('sequelize');
+const { clinicDate } = require('./clinicDate');
 
-const generateMedicalRecordNumber = async () => {
-  const lastPatient = await Patient.findOne({
-    order: [['id', 'DESC']]
-  });
-
-  let nextNumber = 1;
-  if (lastPatient && lastPatient.medical_record_number) {
-    const lastNumber = parseInt(lastPatient.medical_record_number.replace('RM', ''));
-    nextNumber = lastNumber + 1;
-  }
-
-  return `RM${String(nextNumber).padStart(6, '0')}`;
+// Allocate under a row lock held until the patient/registration transaction commits.
+// Seed from historical records to preserve numbering when upgrading existing clinics.
+const nextNumber = async (name, sql, replacements, transaction) => {
+  if (!transaction) throw new Error('Number allocation requires a transaction');
+  await sequelize.query(
+    'INSERT INTO `number_sequences` (`name`, `last_value`) VALUES (:name, 0) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`)',
+    { replacements: { name }, transaction },
+  );
+  const sequence = await NumberSequence.findByPk(name, { transaction, lock: transaction.LOCK.UPDATE });
+  const [row] = await sequelize.query(sql, { replacements, transaction, type: QueryTypes.SELECT });
+  const value = Math.max(sequence.last_value, Number(row.maximum) || 0) + 1;
+  await sequence.update({ last_value: value }, { transaction });
+  return value;
 };
-
-const generateQueueNumber = async (visitDate) => {
-  const { Registration } = require('../models');
-  
-  const today = visitDate || new Date().toISOString().split('T')[0];
-  
-  const lastQueue = await Registration.findOne({
-    where: {
-      visit_date: today
-    },
-    order: [['queue_number', 'DESC']]
-  });
-
-  let nextNumber = 1;
-  if (lastQueue && lastQueue.queue_number) {
-    const lastNumber = parseInt(lastQueue.queue_number.replace('A', ''));
-    nextNumber = lastNumber + 1;
-  }
-
-  return `A${String(nextNumber).padStart(3, '0')}`;
+const generateMedicalRecordNumber = async transaction => {
+  const value = await nextNumber('medical-record',
+    'SELECT MAX(CAST(SUBSTRING(medical_record_number, 3) AS UNSIGNED)) AS maximum FROM patients', {}, transaction);
+  return `RM${String(value).padStart(6, '0')}`;
 };
-
+const generateQueueNumber = async (visitDate = clinicDate(), transaction) => {
+  const value = await nextNumber(`queue:${visitDate}`,
+    'SELECT MAX(CAST(SUBSTRING(queue_number, 2) AS UNSIGNED)) AS maximum FROM registrations WHERE visit_date = :date',
+    { date: visitDate }, transaction);
+  return `A${String(value).padStart(3, '0')}`;
+};
 module.exports = { generateMedicalRecordNumber, generateQueueNumber };

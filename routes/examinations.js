@@ -7,10 +7,10 @@ const { getExaminationByRegistrationId, createExamination, updateExamination, ge
 
 router.get("/registration/:registration_id", authMiddleware, getExaminationByRegistrationId);
 router.get("/patient/:patient_id/history", authMiddleware, getPatientHistory);
-router.post("/", authMiddleware, authorize("Administrator"), examinationValidation, validate, createExamination);
-router.put("/:id", authMiddleware, authorize("Administrator"), examinationValidation, validate, updateExamination);
-router.post("/medical-actions", authMiddleware, authorize("Administrator"), medicalActionValidation, validate, addMedicalAction);
-router.post("/prescriptions", authMiddleware, authorize("Administrator"), prescriptionValidation, validate, addPrescription);
-router.put("/:id/complete", authMiddleware, authorize("Administrator"), completeExamination);
+router.post("/", authMiddleware, authorize("Administrator", "Dokter"), examinationValidation, validate, createExamination);
+router.put("/:id", authMiddleware, authorize("Administrator", "Dokter"), examinationValidation, validate, updateExamination);
+router.post("/medical-actions", authMiddleware, authorize("Administrator", "Dokter"), medicalActionValidation, validate, addMedicalAction);
+router.post("/prescriptions", authMiddleware, authorize("Administrator", "Dokter"), prescriptionValidation, validate, addPrescription);
+router.put("/:id/complete", authMiddleware, authorize("Administrator", "Dokter"), completeExamination);
 
 module.exports = router;

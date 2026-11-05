@@ -1,3 +1,4 @@
+const sequelize = require('../config/sequelize');
 const { Registration, Patient, Doctor, Clinic } = require('../models');
 const { generateQueueNumber } = require('../helpers/generator');
 const { Op } = require('sequelize');
@@ -38,10 +39,10 @@ const getAllRegistrations = async (req, res) => {
 
     const { count, rows } = await Registration.findAndCountAll({
       where: whereClause,
-      include: includeClause.filter(inc => inc.where !== undefined || !search),
+      include: includeClause,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['visit_date', 'DESC'], ['queue_number', 'ASC']]
+      order: [['visit_date', 'DESC'], ['id', 'ASC']]
     });
 
     res.json({
@@ -95,9 +96,10 @@ const createRegistration = async (req, res) => {
   try {
     const { patient_id, doctor_id, clinic_id, visit_date, payment_type, initial_complaint } = req.body;
 
-    const queue_number = await generateQueueNumber(visit_date);
+    const registration = await sequelize.transaction(async transaction => {
+      const queue_number = await generateQueueNumber(visit_date, transaction);
 
-    const registration = await Registration.create({
+      return Registration.create({
       patient_id,
       doctor_id,
       clinic_id,
@@ -106,6 +108,7 @@ const createRegistration = async (req, res) => {
       initial_complaint,
       queue_number,
       status: 'Menunggu'
+      }, { transaction });
     });
 
     const registrationWithDetails = await Registration.findByPk(registration.id, {
@@ -140,7 +143,14 @@ const updateRegistration = async (req, res) => {
       });
     }
 
-    await registration.update(req.body);
+    if (registration.status !== 'Menunggu') {
+      return res.status(409).json({ success: false, message: 'Pendaftaran yang sudah dipanggil tidak dapat diubah.' });
+    }
+    if (req.body.visit_date !== registration.visit_date) {
+      return res.status(409).json({ success: false, message: 'Tanggal kunjungan tidak dapat diubah. Buat pendaftaran baru.' });
+    }
+    const allowed = ['patient_id', 'doctor_id', 'clinic_id', 'payment_type', 'initial_complaint'];
+    await registration.update(Object.fromEntries(allowed.filter(key => req.body[key] !== undefined).map(key => [key, req.body[key]])));
 
     const updatedRegistration = await Registration.findByPk(registration.id, {
       include: [
@@ -174,6 +184,7 @@ const deleteRegistration = async (req, res) => {
       });
     }
 
+    if (registration.status !== 'Menunggu') return res.status(409).json({ success: false, message: 'Riwayat pelayanan yang sudah dipanggil tidak dapat dihapus.' });
     await registration.destroy();
 
     res.json({

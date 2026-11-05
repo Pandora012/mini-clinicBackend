@@ -45,6 +45,7 @@ const Examination = sequelize.define('Examination', {
   }
 }, {
   tableName: 'examinations',
+  indexes: [{ name: 'examinations_registration_unique', unique: true, fields: ['registration_id'] }],
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at'

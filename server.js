@@ -8,7 +8,7 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connected successfully');
     
-    await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
+    if (process.env.NODE_ENV !== 'production') await sequelize.sync();
     console.log('Database synchronized');
 
     app.listen(PORT, () => {

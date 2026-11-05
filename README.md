@@ -199,3 +199,5 @@ Use Postman or similar tool to test endpoints. Import API collection (if provide
 - Add input sanitization
 - Use environment variables for sensitive data
 - Regular security updates
+
+Untuk perubahan 3 November 2026: jalankan `npm run migrate` sebelum server. Lihat `../docs/pembaruan-2026-11-03.md` untuk konfigurasi, pembuatan administrator awal, dan pengujian (`npm test`). Endpoint registrasi akun sekarang hanya dapat dipakai administrator yang sudah masuk.

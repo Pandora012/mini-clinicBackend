@@ -7,7 +7,7 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map(url => url.trim()) : ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -40,7 +40,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
     success: false,
-    message: err.message || 'Internal server error'
+    message: 'Permintaan gagal diproses. Silakan coba lagi.'
   });
 });
 

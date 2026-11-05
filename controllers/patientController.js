@@ -1,5 +1,7 @@
-const { Patient } = require('../models');
+const sequelize = require('../config/sequelize');
+const { Patient, Registration } = require('../models');
 const { generateMedicalRecordNumber } = require('../helpers/generator');
+const patientValues = body => Object.fromEntries(['nik', 'name', 'gender', 'birth_date', 'phone', 'address'].filter(key => body[key] !== undefined).map(key => [key, body[key]]));
 const { Op } = require('sequelize');
 
 const getAllPatients = async (req, res) => {
@@ -66,11 +68,13 @@ const getPatientById = async (req, res) => {
 
 const createPatient = async (req, res) => {
   try {
-    const medical_record_number = await generateMedicalRecordNumber();
+    const patient = await sequelize.transaction(async transaction => {
+      const medical_record_number = await generateMedicalRecordNumber(transaction);
 
-    const patient = await Patient.create({
-      ...req.body,
+      return Patient.create({
+      ...patientValues(req.body),
       medical_record_number
+      }, { transaction });
     });
 
     res.status(201).json({
@@ -103,7 +107,7 @@ const updatePatient = async (req, res) => {
       });
     }
 
-    await patient.update(req.body);
+    await patient.update(patientValues(req.body));
 
     res.json({
       success: true,
@@ -135,6 +139,9 @@ const deletePatient = async (req, res) => {
       });
     }
 
+    if (await Registration.count({ where: { patient_id: patient.id } })) {
+      return res.status(409).json({ success: false, message: 'Pasien memiliki riwayat kunjungan dan tidak dapat dihapus.' });
+    }
     await patient.destroy();
 
     res.json({

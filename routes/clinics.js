@@ -11,7 +11,7 @@ const {
   deleteClinic
 } = require('../controllers/clinicController');
 
-router.get('/', authMiddleware, getAllClinics);
+router.get('/', authMiddleware, require('../middleware/pagination'), getAllClinics);
 router.get('/:id', authMiddleware, getClinicById);
 router.post('/', authMiddleware, authorize('Administrator'), clinicValidation, validate, createClinic);
 router.put('/:id', authMiddleware, authorize('Administrator'), clinicValidation, validate, updateClinic);

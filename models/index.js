@@ -6,6 +6,7 @@ const Registration = require('./Registration');
 const Examination = require('./Examination');
 const MedicalAction = require('./MedicalAction');
 const Prescription = require('./Prescription');
+require('./NumberSequence');
 
 Patient.hasMany(Registration, { foreignKey: 'patient_id', as: 'registrations' });
 Registration.belongsTo(Patient, { foreignKey: 'patient_id', as: 'patient' });

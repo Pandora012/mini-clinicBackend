@@ -54,6 +54,7 @@ const Registration = sequelize.define('Registration', {
   }
 }, {
   tableName: 'registrations',
+  indexes: [{ name: 'registrations_visit_queue_unique', unique: true, fields: ['visit_date', 'queue_number'] }],
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at'

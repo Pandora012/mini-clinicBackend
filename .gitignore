@@ -1,13 +1,13 @@
 # Dependencies
 node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 
 # Environment
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
+!.env.*.example
 
 # Logs
 logs/
@@ -38,3 +38,11 @@ build/
 # Testing
 coverage/
 .nyc_output/
+playwright-report/
+test-results/
+
+# Local caches and temporary files
+.cache/
+tmp/
+*.tmp
+*.tsbuildinfo

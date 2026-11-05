@@ -5,7 +5,7 @@ const { patientValidation } = require("../validations/patientValidation");
 const validate = require("../middleware/validation");
 const { getAllPatients, getPatientById, createPatient, updatePatient, deletePatient } = require("../controllers/patientController");
 
-router.get("/", authMiddleware, getAllPatients);
+router.get("/", authMiddleware, require("../middleware/pagination"), getAllPatients);
 router.get("/:id", authMiddleware, getPatientById);
 router.post("/", authMiddleware, authorize("Administrator", "Petugas Pendaftaran"), patientValidation, validate, createPatient);
 router.put("/:id", authMiddleware, authorize("Administrator", "Petugas Pendaftaran"), patientValidation, validate, updatePatient);

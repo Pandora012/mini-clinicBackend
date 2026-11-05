@@ -11,7 +11,7 @@ const {
   deleteDoctor
 } = require('../controllers/doctorController');
 
-router.get('/', authMiddleware, getAllDoctors);
+router.get('/', authMiddleware, require('../middleware/pagination'), getAllDoctors);
 router.get('/:id', authMiddleware, getDoctorById);
 router.post('/', authMiddleware, authorize('Administrator'), doctorValidation, validate, createDoctor);
 router.put('/:id', authMiddleware, authorize('Administrator'), doctorValidation, validate, updateDoctor);

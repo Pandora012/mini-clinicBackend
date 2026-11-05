@@ -1,9 +1,12 @@
+const { clinicDate } = require('../helpers/clinicDate');
+const sequelize = require('../config/sequelize');
+const { canTransition } = require('../helpers/workflow');
 const { Registration, Patient, Doctor, Clinic } = require('../models');
 const { Op, fn, col, literal } = require('sequelize');
 
 const getTodayQueues = async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = clinicDate();
 
     const queues = await Registration.findAll({
       where: {
@@ -14,7 +17,7 @@ const getTodayQueues = async (req, res) => {
         { model: Doctor, as: 'doctor' },
         { model: Clinic, as: 'clinic' }
       ],
-      order: [['queue_number', 'ASC']]
+      order: [['id', 'ASC']]
     });
 
     const waitingCount = await Registration.count({
@@ -58,7 +61,7 @@ const getTodayQueues = async (req, res) => {
 
 const getNextQueue = async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = clinicDate();
     const { doctor_id, clinic_id } = req.query;
 
     const whereClause = {
@@ -76,7 +79,7 @@ const getNextQueue = async (req, res) => {
         { model: Doctor, as: 'doctor' },
         { model: Clinic, as: 'clinic' }
       ],
-      order: [['queue_number', 'ASC']]
+      order: [['id', 'ASC']]
     });
 
     if (!nextQueue) {
@@ -113,7 +116,13 @@ const updateQueueStatus = async (req, res) => {
       });
     }
 
-    await registration.update({ status });
+    if (!canTransition(registration.status, status) || status === 'Selesai') {
+      return res.status(409).json({ success: false, message: 'Urutan status tidak valid. Selesaikan pasien melalui pemeriksaan dokter.' });
+    }
+    const [changed] = await Registration.update({ status }, { where: { id, status: registration.status } });
+    if (!changed && registration.status !== status) {
+      return res.status(409).json({ success: false, message: 'Status sudah berubah. Muat ulang antrean.' });
+    }
 
     const updatedQueue = await Registration.findByPk(id, {
       include: [
@@ -151,7 +160,7 @@ const getQueueHistory = async (req, res) => {
         { model: Doctor, as: 'doctor' },
         { model: Clinic, as: 'clinic' }
       ],
-      order: [['visit_date', 'DESC'], ['queue_number', 'ASC']]
+      order: [['visit_date', 'DESC'], ['id', 'ASC']]
     });
 
     res.json({
@@ -166,7 +175,26 @@ const getQueueHistory = async (req, res) => {
   }
 };
 
+const callNextQueue = async (req, res) => {
+  try {
+    const queue = await sequelize.transaction(async transaction => {
+      const next = await Registration.findOne({
+        where: { visit_date: clinicDate(), status: 'Menunggu' },
+        order: [['id', 'ASC']], transaction, lock: transaction.LOCK.UPDATE,
+      });
+      if (!next) return null;
+      await next.update({ status: 'Check In' }, { transaction });
+      return next;
+    });
+    res.json({ success: true, data: queue });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Gagal memanggil antrean. Silakan coba lagi.' });
+  }
+};
+
 module.exports = {
+  callNextQueue,
   getTodayQueues,
   getNextQueue,
   updateQueueStatus,

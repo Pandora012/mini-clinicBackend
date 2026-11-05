@@ -1,10 +1,11 @@
+const { clinicDate } = require('../helpers/clinicDate');
 const { Patient, Registration, Doctor, Clinic } = require('../models');
 const Sequelize = require('sequelize');
 const { Op } = require('sequelize');
 
 const getDashboardStats = async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = clinicDate();
 
     const totalPatients = await Patient.count();
 
